@@ -103,6 +103,14 @@ def clean_goodreads_review(review: str) -> str:
     return clean.strip()
 
 
+def sanitize_filename(filename, replacement="-"):
+    forbidden_chars = r'[<>:"/\\|?*]'
+    clean_name = re.sub(forbidden_chars, replacement, filename)
+    clean_name = clean_name.strip(". ")
+    clean_name = re.sub(r'-+', '-', clean_name)
+    return clean_name
+
+
 def write_to_markdown_file(books: dict):
     with open("template.md", 'r', encoding='utf-8') as file:
         file_content_template = file.read()
@@ -113,12 +121,9 @@ def write_to_markdown_file(books: dict):
         if book['private_notes']:
             book['private_notes'] = clean_goodreads_review(book['private_notes'])
         title = book['title']
-        # if title contains ":" replace it with " - ".
-        # android does not allow ":" in file names and this will make syncthing to work properly across all platforms.
-        title = title.replace(":", " - ")
         output = file_content_template.format_map(book)
 
-        file_path_str = f"books/{title}.md"
+        file_path_str = f"books/{sanitize_filename(f"{title}.md")}"
         file_path = Path(file_path_str)
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
