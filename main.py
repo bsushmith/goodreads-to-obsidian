@@ -113,7 +113,9 @@ def write_to_markdown_file(books: dict):
         if book['private_notes']:
             book['private_notes'] = clean_goodreads_review(book['private_notes'])
         title = book['title']
-
+        # if title contains ":" replace it with " - ".
+        # android does not allow ":" in file names and this will make syncthing to work properly across all platforms.
+        title = title.replace(":", " - ")
         output = file_content_template.format_map(book)
 
         file_path_str = f"books/{title}.md"
